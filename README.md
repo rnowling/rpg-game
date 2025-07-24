@@ -2,12 +2,15 @@
 Trying to vibe code a roguelike, text-based RPG game using
 AI-assisted programming.
 
+The prompts I'm using are in the [prompts.md](prompts.md) file.
+I'm using Google Gemini 2.5 Pro as the AI.
+
 ## Design Decisions
 Summary of the design decisions generated from the code generation prompts.
-("Please summarize the following prompts into bullet points of game features.")
 
-* **Text-Based RPG:** The game is a classic text-based role-playing adventure. 📜
-* **Player Character & Movement:** You control a character represented by an `@` symbol. Movement is handled with the `w` (up), `s` (down), `a` (left), and `d` (right) keys.
-* **Dynamic Map & Viewport:** The game world can be much larger than the screen. The display shows an 80x25 "camera" view of the map that stays centered on your character as you move.
-* **Boundaries:** The map is enclosed by borders, displayed as stars (`*`), which your character cannot cross.
-* **Quit Functionality:** You can exit the game at any time by pressing the `q` key.
+* **Text-Based RPG:** The game is a role-playing game that uses text characters for its interface and graphics.
+* **Player Control:** The user controls a character, represented by an '@' symbol, on a 2D map.
+* **Movement System:** The character can be moved one space at a time using the **W** (up), **S** (down), **A** (left), and **D** (right) keys. The user can also quit the game by pressing **Q**.
+* **Scrolling Viewport:** The game displays an 80x25 portion of a potentially larger map. As the player moves, this viewport scrolls to keep the player character in the center.
+* **Collision Detection:** The player character is unable to move through walls or outside the map's boundaries.
+* **Map Structure:** The world is divided into **rooms** connected by **hallways**. Each room is designed to have one or two entryways.
