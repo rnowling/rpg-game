@@ -31,6 +31,6 @@ This file stores the prompts used to develop the game.
 
 > Add a quantitative attribute to the player's character called energy. It's minimum value is 0, while it's maximum value is 100. When the game starts, the character's energy should be initialized to 100. After every turn, the energy should go down by 1 point. If the character's energy reaches 0, the game is over, and the character has lost. 
 
-## Add apples to give the player energy
+## Add batteries to give the player energy
 
-> Add objects called apples to the game. The apple objects should be displayed using the character "a". The game should start with 20 apple objects. The apple should should be randomly distributed across the map inside the rooms. When the character's position matches the position of an apple object, the character's energy is increased by 5 points and the apple object is removed from the game. 
+>  Add objects called batteries to the game. The battery objects should be displayed using the character "b". The game should start with 20 battery objects. The batteries should should be randomly distributed across the map inside the rooms. When the character's position matches the position of a battery object, the character's energy should be increased by 10 points and the battery object should be removed from the game. 
