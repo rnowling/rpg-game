@@ -37,6 +37,7 @@ def generate_dungeon(map_width, map_height, max_rooms, min_room_size, max_room_s
         if any(new_room.intersects(other_room) for other_room in rooms):
             continue
 
+        # Carve out the room's floor
         for ry in range(new_room.y1, new_room.y2):
             for rx in range(new_room.x1, new_room.x2):
                 game_map[ry][rx] = '.'
@@ -47,6 +48,7 @@ def generate_dungeon(map_width, map_height, max_rooms, min_room_size, max_room_s
             player_start_pos = (new_x, new_y)
         else:
             (prev_x, prev_y) = rooms[-1].center()
+            # Carve L-shaped hallways
             if random.randint(0, 1) == 1:
                 for hx in range(min(prev_x, new_x), max(prev_x, new_x) + 1):
                     game_map[prev_y][hx] = '.'
@@ -59,46 +61,67 @@ def generate_dungeon(map_width, map_height, max_rooms, min_room_size, max_room_s
                     game_map[new_y][hx] = '.'
         
         rooms.append(new_room)
-    return game_map, player_start_pos
+    return game_map, player_start_pos, rooms
 
 # --- Game Settings ---
 MAP_WIDTH = 100
 MAP_HEIGHT = 40
 VIEW_WIDTH = 80
 VIEW_HEIGHT = 25
+NUM_APPLES = 20
+
+# --- Dungeon Settings ---
 MAX_ROOMS = 15
 MIN_ROOM_SIZE = 6
 MAX_ROOM_SIZE = 10
 
 # --- Initialize Game ---
-game_map, (player_x, player_y) = generate_dungeon(
+game_map, (player_x, player_y), room_list = generate_dungeon(
     MAP_WIDTH, MAP_HEIGHT, MAX_ROOMS, MIN_ROOM_SIZE, MAX_ROOM_SIZE
 )
+
 # Initialize player energy
 MAX_ENERGY = 100
 player_energy = MAX_ENERGY
+ENERGY_PER_APPLE = 5
+
+# Place apples
+apples = []
+floor_tiles_in_rooms = []
+for room in room_list:
+    for y in range(room.y1, room.y2):
+        for x in range(room.x1, room.x2):
+            if (x, y) != (player_x, player_y):
+                floor_tiles_in_rooms.append((x, y))
+
+if len(floor_tiles_in_rooms) >= NUM_APPLES:
+    apples = random.sample(floor_tiles_in_rooms, NUM_APPLES)
+
+status_message = ""
 
 # --- Main Game Loop ---
 while True:
     # --- Drawing Logic ---
     os.system('cls' if os.name == 'nt' else 'clear')
     
-    # Calculate camera position
     camera_x = max(0, min(player_x - (VIEW_WIDTH // 2), MAP_WIDTH - VIEW_WIDTH))
     camera_y = max(0, min(player_y - (VIEW_HEIGHT // 2), MAP_HEIGHT - VIEW_HEIGHT))
 
-    # Display game title and player stats
     print("--- Roguelike Dungeon ---")
     status_line = f"Position: ({player_x}, {player_y}) | Energy: {player_energy}/{MAX_ENERGY}"
     print(status_line)
-    
-    # Draw the map
+    if status_message:
+        print(status_message)
+
     for screen_y in range(VIEW_HEIGHT):
         row = []
         for screen_x in range(VIEW_WIDTH):
             map_x, map_y = camera_x + screen_x, camera_y + screen_y
+            
             if map_x == player_x and map_y == player_y:
                 row.append('@')
+            elif (map_x, map_y) in apples:
+                row.append('a')
             else:
                 row.append(game_map[map_y][map_x])
         print(''.join(row))
@@ -109,15 +132,15 @@ while True:
         break
 
     # --- Handle Player Input ---
+    status_message = "" # Clear message each turn
     prompt = "Your move (w/a/s/d) or 'q' to quit: "
     move = input(prompt).lower()
 
     if move == 'q':
         break
     
-    # A turn passes if the player attempts to move
     if move in ['w', 'a', 's', 'd']:
-        player_energy -= 1 # Decrease energy by 1 each turn
+        player_energy -= 1
 
         next_x, next_y = player_x, player_y
         if move == 'w':
@@ -129,9 +152,14 @@ while True:
         elif move == 'd':
             next_x += 1
 
-        # --- Collision Detection ---
         if game_map[next_y][next_x] != '#':
             player_x, player_y = next_x, next_y
+            
+            # --- Check for apple consumption ---
+            if (player_x, player_y) in apples:
+                player_energy = min(MAX_ENERGY, player_energy + ENERGY_PER_APPLE)
+                apples.remove((player_x, player_y))
+                status_message = f"You found an apple! +{ENERGY_PER_APPLE} energy."
 
 # --- Runs after the loop breaks ---
 print("\nThanks for playing! Goodbye. 👋\n")
